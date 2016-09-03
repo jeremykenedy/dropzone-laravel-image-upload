@@ -6,3 +6,6 @@ body {
 div.btn-group{
     float:right;
 }
+.dropzone .dz-preview .dz-image img {
+    height: 120px;
+}
