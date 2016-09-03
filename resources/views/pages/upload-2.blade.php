@@ -6,7 +6,7 @@
 
 @section('footer')
     {!! HTML::script('/packages/dropzone/dropzone.js') !!}
-    {!! HTML::script('/assets/js/dropzone-config.js') !!}
+    {!! HTML::script('/assets/js/dropzone-config-2.js') !!}
 @stop
 
 @section('content')
@@ -50,6 +50,7 @@
 
         <div class="dz-preview dz-file-preview">
             <div class="dz-image"><img data-dz-thumbnail=""></div>
+            <input type="hidden" class="serverfilename"/>
 
             <div class="dz-details">
                 <div class="dz-size"><span data-dz-size=""></span></div>

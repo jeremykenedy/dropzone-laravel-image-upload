@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'full_size'   => '/var/www/html/tuts/dropzone/public/images/full_size/',
-    'icon_size'   => '/var/www/html/tuts/dropzone/public/images/icon_size/',
+    'full_size'   => env('UPLOAD_FULL_SIZE', public_path('images/full_size/')),
+    'icon_size'   => env('UPLOAD_ICON_SIZE', public_path('images/icon_size/')),
 ];

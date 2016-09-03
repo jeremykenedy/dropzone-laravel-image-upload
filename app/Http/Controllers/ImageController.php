@@ -67,6 +67,12 @@ class ImageController extends Controller
             ];
         }
 
+
+
+// http://laravel-image-upload-dropzone.local/public/images/full_size/v1-c26b3.png
+
+// 'size' => File::size(public_path('images/full_size/' . $image->filename))
+
         return response()->json([
             'images' => $imageAnswer
         ]);
