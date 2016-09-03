@@ -64,7 +64,7 @@ class ImageRepository
 
     public function createUniqueFilename( $filename )
     {
-        $full_size_dir = Config::get('images.full_size');
+        $full_size_dir = public_path('images/full_size/');
         $full_image_path = $full_size_dir . $filename . '.jpg';
 
         if ( File::exists( $full_image_path ) )
@@ -83,7 +83,7 @@ class ImageRepository
     public function original( $photo, $filename )
     {
         $manager = new ImageManager();
-        $image = $manager->make( $photo )->encode('jpg')->save(Config::get('images.full_size') . $filename );
+        $image = $manager->make( $photo )->encode('jpg')->save(public_path('images/full_size/') . $filename );
 
         return $image;
     }
@@ -94,7 +94,7 @@ class ImageRepository
     public function icon( $photo, $filename )
     {
         $manager = new ImageManager();
-        $image = $manager->make( $photo )->encode('jpg')->resize(200, null, function($constraint){$constraint->aspectRatio();})->save( Config::get('images.icon_size')  . $filename );
+        $image = $manager->make( $photo )->encode('jpg')->resize(200, null, function($constraint){$constraint->aspectRatio();})->save( public_path('images/icon_size/')  . $filename );
 
         return $image;
     }
@@ -105,8 +105,8 @@ class ImageRepository
     public function delete( $originalFilename)
     {
 
-        $full_size_dir = Config::get('images.full_size');
-        $icon_size_dir = Config::get('images.icon_size');
+        $full_size_dir = public_path('images/full_size/');
+        $icon_size_dir = public_path('images/icon_size/');
 
         $sessionImage = Image::where('original_name', 'like', $originalFilename)->first();
 
