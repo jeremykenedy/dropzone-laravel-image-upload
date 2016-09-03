@@ -2,12 +2,13 @@
 
 namespace App\Logic\Image;
 
-use App\Models\Image;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\ImageManager;
+use App\Models\Image;
+
 
 class ImageRepository
 {
@@ -29,16 +30,15 @@ class ImageRepository
         $photo = $form_data['file'];
 
         $originalName = $photo->getClientOriginalName();
-        $originalNameWithoutExt = substr($originalName, 0, strlen($originalName) - 4);
+        $extension = $photo->getClientOriginalExtension();
+        $originalNameWithoutExt = substr($originalName, 0, strlen($originalName) - strlen($extension) - 1);
 
         $filename = $this->sanitize($originalNameWithoutExt);
-        $allowed_filename = $this->createUniqueFilename( $filename );
+        $allowed_filename = $this->createUniqueFilename( $filename, $extension );
 
-        $filenameExt = $allowed_filename .'.jpg';
+        $uploadSuccess1 = $this->original( $photo, $allowed_filename );
 
-        $uploadSuccess1 = $this->original( $photo, $filenameExt );
-
-        $uploadSuccess2 = $this->icon( $photo, $filenameExt );
+        $uploadSuccess2 = $this->icon( $photo, $allowed_filename );
 
         if( !$uploadSuccess1 || !$uploadSuccess2 ) {
 
@@ -57,24 +57,25 @@ class ImageRepository
 
         return Response::json([
             'error' => false,
-            'code'  => 200
+            'code'  => 200,
+            'filename' => $allowed_filename
         ], 200);
 
     }
 
-    public function createUniqueFilename( $filename )
+    public function createUniqueFilename( $filename, $extension )
     {
         $full_size_dir = public_path('images/full_size/');
-        $full_image_path = $full_size_dir . $filename . '.jpg';
+        $full_image_path = $full_size_dir . $filename . '.' . $extension;
 
         if ( File::exists( $full_image_path ) )
         {
             // Generate token for image
             $imageToken = substr(sha1(mt_rand()), 0, 5);
-            return $filename . '-' . $imageToken;
+            return $filename . '-' . $imageToken . '.' . $extension;
         }
 
-        return $filename;
+        return $filename . '.' . $extension;
     }
 
     /**
@@ -83,7 +84,7 @@ class ImageRepository
     public function original( $photo, $filename )
     {
         $manager = new ImageManager();
-        $image = $manager->make( $photo )->encode('jpg')->save(public_path('images/full_size/') . $filename );
+        $image = $manager->make( $photo )->save(public_path('images/full_size/' . $filename));
 
         return $image;
     }
@@ -94,22 +95,24 @@ class ImageRepository
     public function icon( $photo, $filename )
     {
         $manager = new ImageManager();
-        $image = $manager->make( $photo )->encode('jpg')->resize(200, null, function($constraint){$constraint->aspectRatio();})->save( public_path('images/icon_size/')  . $filename );
+        $image = $manager->make( $photo )->resize(200, null, function ($constraint) {
+            $constraint->aspectRatio();
+            })
+            ->save(public_path('images/icon_size/' . $filename));
 
         return $image;
     }
 
     /**
-     * Delete Image From Session folder, based on original filename
+     * Delete Image From Session folder, based on server created filename
      */
-    public function delete( $originalFilename)
+    public function delete( $filename )
     {
 
         $full_size_dir = public_path('images/full_size/');
         $icon_size_dir = public_path('images/icon_size/');
 
-        $sessionImage = Image::where('original_name', 'like', $originalFilename)->first();
-
+        $sessionImage = Image::where('filename', 'like', $filename)->first();
 
         if(empty($sessionImage))
         {
@@ -120,8 +123,8 @@ class ImageRepository
 
         }
 
-        $full_path1 = $full_size_dir . $sessionImage->filename . '.jpg';
-        $full_path2 = $icon_size_dir . $sessionImage->filename . '.jpg';
+        $full_path1 = $full_size_dir . $sessionImage->filename;
+        $full_path2 = $icon_size_dir . $sessionImage->filename;
 
         if ( File::exists( $full_path1 ) )
         {

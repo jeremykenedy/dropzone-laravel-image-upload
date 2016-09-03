@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Image upload in Laravel 5.1 with Dropzone.js</title>
+    <title>Image upload in Laravel 5.2 with Dropzone.js</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {!! HTML::style('/packages/bootstrap/css/bootstrap.min.css') !!}
     {!! HTML::style('/assets/css/style.css') !!}
     {!! HTML::script('https://code.jquery.com/jquery-2.1.4.min.js') !!}
+    {!! HTML::script('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') !!}
 
     @yield('head')
 
@@ -29,6 +30,7 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="/">Upload</a></li>
+                <li><a href="/example-2">Upload-2</a></li>
             </ul>
         </div>
     </div>
